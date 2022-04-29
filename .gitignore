@@ -1,0 +1,6 @@
+# ignore these folders
+bin/
+build/
+
+# ignore these files
+*.md.bak
