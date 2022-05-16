@@ -1,6 +1,6 @@
-<h1> uPyReadPicoTsensor </h1>
+<h1> uPy_Read_Pico_T_Sensor </h1>
 
-<h3> Read the Raspberry Pi Pico's internal temperature sensor using a periodic timer. </h3>
+<h3> Read the Raspberry Pi Pico's internal temperature sensor using a timer interrupt. </h3>
 
 <br>
 
