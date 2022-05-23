@@ -1,6 +1,6 @@
 <h1> uPy_Read_Pico_T_Sensor </h1>
 
-<h3> Read the Raspberry Pi Pico's internal temperature sensor using a timer interrupt. </h3>
+<h3> Read the Raspberry Pi Pico's internal temperature sensor using a timer interrupt. Display the result using an SSD1306 OLED display. </h3>
 
 <br>
 
