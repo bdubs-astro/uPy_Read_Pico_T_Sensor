@@ -47,30 +47,30 @@ def disp_string (oled, x, y, str, disp_logo = True):
         oled.blit(fb, 96, 0) # blit the image from the framebuffer to the display
     oled.show()
 
-def readT():
+def read_T():
     # internal T sensor
-    tempSensor = ADC(4) # 5th ADC channel
+    temp_sensor = ADC(4) # 5th ADC channel
     Vbe = 0.706         # V
-    tOffs = 27          # °C
+    T_offs = 27         # °C
     slope = -0.001721   # V/°C
 
-    adcRaw = tempSensor.read_u16()
-    adcVolt = adcRaw * 3.3/65535
-    tC = tOffs + (adcVolt - Vbe)/slope
-    return tC, adcVolt, adcRaw
+    adc_raw = temp_sensor.read_u16()
+    adc_volt = adc_raw * 3.3/65535
+    T_C = T_offs + (adc_volt - Vbe)/slope
+    return T_C, adc_volt, adc_raw
     
-def readISR(event):
-    global ledStart
-    ledStart = time.ticks_ms()
+def read_ISR(event):
+    global led_start
+    led_start = time.ticks_ms()
     led.high()
     
     timestamp = rtc.datetime()
     (year,month,day,xxx,hour,minute,sec,xxx) = timestamp
     timestring = '%02d:%02d:%02d, %02d/%02d/%04d: '%(hour, minute, sec, month, day, year)
     
-    tC, adcVolt, adcRaw = readT()
-    disp_string (oled, 5, 5, ('%.1f C' %(tC)))
-    print(timestring + '%.2f°C, %.4fV, ADC: %d'%(tC, adcVolt, adcRaw))
+    T_C, adc_volt, adc_raw = read_T()
+    disp_string (oled, 5, 5, ('%.1f C' %(T_C)))
+    print(timestring + '%.2f°C, %.4fV, ADC: %d'%(T_C, adc_volt, adc_raw))
    
 # I2C OLED setup
 scl_pin= const(5)
@@ -81,19 +81,19 @@ HEIGHT = 32
 oled = disp_setup(scl_pin, sda_pin, WIDTH, HEIGHT)
 
 # LED setup
-ledBuiltin = 25
-ledDuration = 50    # ms
-led = Pin(ledBuiltin, Pin.OUT, value = 0)
+led_builtin = 25
+led_duration = 50    # ms
+led = Pin(led_builtin, Pin.OUT, value = 0)
 
-timerFreq = 0.5     # timer interrupt frequency (Hz)
-readSensor = Timer()
+timer_freq = 0.5     # timer interrupt frequency (Hz)
+read_sensor = Timer()
 
 rtc = machine.RTC()
 
-readSensor.init(freq = timerFreq, mode = Timer.PERIODIC, callback = readISR) # frequency in Hz ... could also use period in ms
+read_sensor.init(freq = timer_freq, mode = Timer.PERIODIC, callback = read_ISR) # frequency in Hz ... could also use period in ms
 
 while True:
     # turn off the LED
-    if (led.value() == 1 and time.ticks_diff(time.ticks_ms(), ledStart) > ledDuration):
+    if (led.value() == 1 and time.ticks_diff(time.ticks_ms(), led_start) > led_duration):
         led.low() 
 
