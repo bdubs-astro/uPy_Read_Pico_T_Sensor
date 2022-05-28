@@ -1,3 +1,11 @@
+'''
+Enable larger fonts for the OLED display:
+
+https://github.com/peterhinch/micropython-font-to-py
+https://www.youtube.com/watch?v=bLXMVTTPFMs
+https://blog.miguelgrinberg.com/post/micropython-and-the-internet-of-things-part-vi-working-with-a-screen
+'''
+
 def disp_setup(scl_pin, sda_pin, width, height, id = 0, addr = 0x3C):
     from machine import Pin, I2C
     from ssd1306 import SSD1306_I2C
