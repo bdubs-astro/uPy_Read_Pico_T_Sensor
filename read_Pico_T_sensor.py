@@ -92,6 +92,14 @@ rtc = machine.RTC()
 
 read_sensor.init(freq = timer_freq, mode = Timer.PERIODIC, callback = read_ISR) # frequency in Hz ... could also use period in ms
 
+# display initial sensor reading
+T_C, adc_volt, adc_raw = read_T()
+disp_string (oled, 5, 5, ('%.1f C' %(T_C)))
+timestamp = rtc.datetime()
+(year,month,day,xxx,hour,minute,sec,xxx) = timestamp
+timestring = '%02d:%02d:%02d, %02d/%02d/%04d: '%(hour, minute, sec, month, day, year)
+print(timestring + '%.2f°C, %.4fV, ADC: %d'%(T_C, adc_volt, adc_raw))
+
 while True:
     # turn off the LED
     if (led.value() == 1 and time.ticks_diff(time.ticks_ms(), led_start) > led_duration):
