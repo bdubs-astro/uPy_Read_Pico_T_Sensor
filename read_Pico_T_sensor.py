@@ -15,6 +15,8 @@ enable larger fonts for the OLED display:
 https://github.com/peterhinch/micropython-font-to-py
 https://www.youtube.com/watch?v=bLXMVTTPFMs
 https://blog.miguelgrinberg.com/post/micropython-and-the-internet-of-things-part-vi-working-with-a-screen
+
+https://codefather.tech/blog/if-name-main-python/
 '''
 
 from machine import Pin, ADC, Timer
@@ -35,7 +37,7 @@ def read_T():
     return T_C, adc_volt, adc_raw
     
 def read_ISR(event):
-    global led_start
+    global led, led_start, rtc, oled
     led_start = time.ticks_ms()
     led.high()
     
@@ -47,37 +49,44 @@ def read_ISR(event):
     display.disp_string(oled, 5, 5, ('%.1f C' %(T_C)))
     print(timestring + '%.2f°C, %.4fV, ADC: %d'%(T_C, adc_volt, adc_raw))
    
-# I2C OLED setup
-SCL_PIN = const(5)
-SDA_PIN = const(4)
-WIDTH  = 128                                          
-HEIGHT = 32
+def main():
+    global led, rtc, oled
+    
+    # I2C OLED setup
+    SCL_PIN = const(5)
+    SDA_PIN = const(4)
+    WIDTH  = 128                                          
+    HEIGHT = 32
 
-oled = display.disp_setup(SCL_PIN, SDA_PIN, WIDTH, HEIGHT)
+    oled = display.disp_setup(SCL_PIN, SDA_PIN, WIDTH, HEIGHT)
 
-# LED setup
-led_builtin = 25
-led_duration = 50    # ms
-led = Pin(led_builtin, Pin.OUT, value = 0)
+    # LED setup
+    led_builtin = 25
+    led_duration = 50    # ms
+    led = Pin(led_builtin, Pin.OUT, value = 0)
 
-timer_freq = 0.5     # timer interrupt frequency (Hz)
-read_sensor = Timer()
+    timer_freq = 0.5     # timer interrupt frequency (Hz)
+    read_sensor = Timer()
 
-rtc = machine.RTC()
+    rtc = machine.RTC()
 
-read_sensor.init(freq = timer_freq, mode = Timer.PERIODIC, callback = read_ISR) # frequency in Hz ... could also use period in ms
+    read_sensor.init(freq = timer_freq, mode = Timer.PERIODIC, callback = read_ISR) # frequency in Hz ... could also use period in ms
 
-# display initial sensor reading
-T_C, adc_volt, adc_raw = read_T()
-display.disp_string(oled, 5, 5, ('%.1f C' %(T_C)))
-timestamp = rtc.datetime()
-(year,month,day,xxx,hour,minute,sec,xxx) = timestamp
-timestring = '%02d:%02d:%02d, %02d/%02d/%04d: '%(hour, minute, sec, month, day, year)
-print(timestring + '%.2f°C, %.4fV, ADC: %d'%(T_C, adc_volt, adc_raw))
+    # display initial sensor reading
+    T_C, adc_volt, adc_raw = read_T()
+    display.disp_string(oled, 5, 5, ('%.1f C' %(T_C)))
+    timestamp = rtc.datetime()
+    (year,month,day,xxx,hour,minute,sec,xxx) = timestamp
+    timestring = '%02d:%02d:%02d, %02d/%02d/%04d: '%(hour, minute, sec, month, day, year)
+    print(timestring + '%.2f°C, %.4fV, ADC: %d'%(T_C, adc_volt, adc_raw))
 
-# loop ...
-while True:
-    # turn off the LED
-    if (led.value() == 1 and time.ticks_diff(time.ticks_ms(), led_start) > led_duration):
-        led.low() 
+    # loop ...
+    while True:
+        # turn off the LED
+        if (led.value() == 1 and time.ticks_diff(time.ticks_ms(), led_start) > led_duration):
+            led.low() 
+
+
+if __name__ == '__main__':
+    main()
 
